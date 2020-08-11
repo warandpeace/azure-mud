@@ -40,6 +40,10 @@ const httpTrigger: AzureFunction = async function (
         target: 'playerDisconnected',
         arguments: [user.id]
       },
+      {
+        target: 'videoPresence',
+        arguments: [user.roomId, await DB.removeUserFromVideoPresence(user.id, user.roomId)]
+      },
       await globalPresenceMessage([user.roomId])
     ]
   })

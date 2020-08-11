@@ -8,8 +8,10 @@ import {
 import NameView from './NameView'
 import { DispatchContext } from '../App'
 import { StopVideoChatAction } from '../Actions'
+import { FaVideo } from 'react-icons/fa'
 
 import '../../style/room.css'
+import { roomData } from '../../server/src/room'
 
 interface Props {
   room?: Room;
@@ -51,7 +53,7 @@ export default function RoomView (props: Props) {
     } else {
       videoChatButton = (
         <button onClick={joinVideoChat}>
-          Join Video Chat
+          Join Video Chat {room.videoUsers && room.videoUsers.length > 0 ? `(${room.videoUsers.length} others)` : ''}
         </button>
       )
     }
@@ -72,14 +74,14 @@ export default function RoomView (props: Props) {
             : 'Loading current room...'
         }}
       />
-      {room ? <PresenceView users={room.users} userId={props.userId} /> : ''}
+      {room ? <PresenceView users={room.users} userId={props.userId} videoUsers={room.videoUsers} /> : ''}
       {videoChatButton}
     </div>
   )
 }
 
-const PresenceView = (props: { users?: string[]; userId?: string }) => {
-  let { users, userId } = props
+const PresenceView = (props: { users?: string[]; userId?: string, videoUsers: string[] }) => {
+  let { users, userId, videoUsers } = props
 
   // Shep: Issue 43, reminder to myself that this is the code making sure users don't appear in their own client lists.
   if (users && userId) {
@@ -96,7 +98,11 @@ const PresenceView = (props: { users?: string[]; userId?: string }) => {
 
     const userViews = users.map((u, idx) => {
       const id = `presence-${idx}`
-      return <NameView userId={u} id={id} key={id} />
+      if (videoUsers && videoUsers.includes(u)) {
+        return <span><NameView userId={u} id={id} key={id} /> <FaVideo /></span>
+      } else {
+        return <NameView userId={u} id={id} key={id} />
+      }
     })
 
     if (users.length === 1) {
